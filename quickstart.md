@@ -7,13 +7,13 @@ Complete reference untuk setup project dari 0 sampai production!
 ## 🎯 Choose Your Path
 
 ### 👨‍🔬 **Path A: Researcher** (Training Model)
-➡️ Jump to [Research Workflow](#research-workflow)
+➡️ Jump to [Research Workflow](#-research-workflow)
 
 ### 👨‍💻 **Path B: Developer** (Testing API)
-➡️ Jump to [Production Workflow](#production-workflow)
+➡️ Jump to [Production Workflow](#-production-workflow)
 
 ### 🚀 **Path C: DevOps** (Deployment)
-➡️ Jump to [Deployment Workflow](#deployment-workflow)
+➡️ Jump to [Deployment Workflow](#-deployment-workflow)
 
 ---
 
