@@ -4,12 +4,16 @@
 
 API untuk parsing expense text informal Indonesia menggunakan kombinasi **IndoBERT NER** dan **Rule-based Regex** untuk ekstraksi otomatis item name, price, quantity, dan currency.
 
-[![CI Pipeline](https://github.com/YOUR_USERNAME/smart-expense-nlp/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/smart-expense-nlp/actions)
+[![CI Pipeline](https://github.com/erwDev/smart-expense-nlp/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/smart-expense-nlp/actions)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115.0-green.svg)](https://fastapi.tiangolo.com/)
 [![Docker](https://img.shields.io/badge/Docker-ready-blue.svg)](https://www.docker.com/)
 
 ---
+
+## Dokumentasi Lain
+- [Quickstart Guide](./quickstart.md)
+- [Development Requirements](./requirements-dev.txt)
 
 ## 📋 Table of Contents
 
