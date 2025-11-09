@@ -1,0 +1,6 @@
+id,text,tokens,labels
+1,nasi goreng 15000,nasi goreng 15000,B-ITEM I-ITEM B-PRICE
+2,mie ayam 12000,mie ayam 12000,B-ITEM I-ITEM B-PRICE
+3,es teh manis 5000,es teh manis 5000,B-ITEM I-ITEM I-ITEM B-PRICE
+4,bakso urat 15rb,bakso urat 15rb,B-ITEM I-ITEM B-PRICE
+5,2x nasi goreng @15000,2x nasi goreng @15000,O B-ITEM I-ITEM O B-PRICE

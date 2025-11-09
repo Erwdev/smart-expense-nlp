@@ -1,0 +1,26 @@
+# Model Path
+model:
+  path: "models_exported/indobert-expense-ner"
+  device: "cpu"  # "cuda" for GPU
+  max_length: 128
+
+# Preprocessing
+preprocessing:
+  lowercase: true
+  remove_extra_spaces: true
+  normalize_numbers: true  # 10k -> 10000, 15rb -> 15000
+
+# Regex Patterns (untuk hybrid approach)
+regex:
+  enabled: true
+  patterns:
+    number_k: '\d+k\b'
+    number_rb: '\d+rb\b'
+    number_ribu: '\d+ribu\b'
+    standard_number: '\d+\.?\d*'
+
+# Post-processing
+postprocessing:
+  merge_tokens: true  # merge subword tokens
+  confidence_threshold: 0.5
+  consistency_check: true  # validate total = qty x price

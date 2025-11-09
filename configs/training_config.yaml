@@ -1,0 +1,49 @@
+# Model Configuration
+model:
+  name: "indobenchmark/indobert-base-p1"
+  num_labels: 5  # B-ITEM, I-ITEM, B-PRICE, I-PRICE, O
+  max_length: 128
+
+# Training Arguments
+training:
+  output_dir: "./models_exported/checkpoints"
+  num_train_epochs: 5
+  per_device_train_batch_size: 16
+  per_device_eval_batch_size: 16
+  learning_rate: 2e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  logging_steps: 50
+  save_steps: 500
+  eval_steps: 500
+  evaluation_strategy: "steps"
+  save_strategy: "steps"
+  load_best_model_at_end: true
+  metric_for_best_model: "f1"
+  greater_is_better: true
+  fp16: true  # mixed precision training
+  gradient_accumulation_steps: 2
+
+# Data Configuration
+data:
+  train_file: "data/splits/train.csv"
+  val_file: "data/splits/val.csv"
+  test_file: "data/splits/test.csv"
+  train_ratio: 0.7
+  val_ratio: 0.15
+  test_ratio: 0.15
+  random_seed: 42
+
+# Label Schema (BIO Tagging)
+labels:
+  - "O"        # Outside
+  - "B-ITEM"   # Begin Item
+  - "I-ITEM"   # Inside Item
+  - "B-PRICE"  # Begin Price
+  - "I-PRICE"  # Inside Price
+
+# Wandb Configuration (optional)
+wandb:
+  project: "smart-expense-nlp"
+  entity: null  # ganti dengan username wandb lo
+  name: "indobert-expense-ner-v1"
