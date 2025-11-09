@@ -672,11 +672,12 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ---
 
-## 📞 Contact & Support
+## 📞 Support
 
 - **Issues:** [GitHub Issues](https://github.com/YOUR_USERNAME/smart-expense-nlp/issues)
 - **Documentation:** [docs/](./docs/)
-- **Email:** your-email@ugm.ac.id
+
+
 
 ---
 

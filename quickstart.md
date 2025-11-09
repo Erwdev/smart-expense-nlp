@@ -440,11 +440,6 @@ git commit -m "chore: track model files with LFS"
 2. **GitHub Issues:**
    https://github.com/YOUR_USERNAME/smart-expense-nlp/issues
 
-3. **Team Contact:**
-   - Email: your-email@ugm.ac.id
-   - Slack: #smart-expense-nlp
-
----
 
 **Last Updated:** 2024-11-09  
 **Version:** 1.0.0
