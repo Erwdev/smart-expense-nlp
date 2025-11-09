@@ -14,6 +14,7 @@ API untuk parsing expense text informal Indonesia menggunakan kombinasi **IndoBE
 ## Dokumentasi Lain
 - [Quickstart Guide](./quickstart.md)
 - [Development Requirements](./requirements-dev.txt)
+- [Dependency Installation Guide] (./INSTALL.md)
 
 ## 📋 Table of Contents
 
@@ -84,39 +85,56 @@ Output: {
 
 ## ⚡ Quick Start
 
-### For Users (Testing API)
+This guide is for developers and researchers joining the project.
+
+### Prerequisites
+
+- **Python 3.9+**
+- **Poetry**: A modern dependency manager. [Installation Guide](https://python-poetry.org/docs/#installation).
+- **Make**: A build automation tool (usually pre-installed on Linux/macOS, available on Windows via Chocolatey or WSL).
+
+### 1. Local Setup
+
+One command to rule them all. This will install all dependencies for development, training, and production into a virtual environment managed by Poetry.
 
 ```bash
-# 1. Clone repository
+# Clone the repository
 git clone https://github.com/YOUR_USERNAME/smart-expense-nlp.git
 cd smart-expense-nlp
 
-# 2. Run with Docker (RECOMMENDED)
-docker-compose up
-
-# 3. Test API
-curl http://localhost:8000/health
-curl -X POST http://localhost:8000/parse \
-  -H "Content-Type: application/json" \
-  -d '{"text": "nasi goreng 15rb"}'
-
-# 4. Open Interactive Docs
-# http://localhost:8000/docs
+# Install dependencies
+make setup
 ```
 
-### For Researchers (Training Model)
+### 2. Run the API (Placeholder)
+
+Start the FastAPI development server. The model loading is currently a placeholder.
 
 ```bash
-# Option 1: Google Colab (RECOMMENDED - FREE GPU!)
-# 1. Open: notebooks/train_on_colab.ipynb
-# 2. Upload to Google Colab
-# 3. Runtime → Change runtime type → T4 GPU
-# 4. Run all cells
+make run-api
+```
 
-# Option 2: Local Training (if you have GPU)
-setup-training.bat  # Windows
-./setup-training.sh  # Linux/Mac
-jupyter notebook notebooks/03_train_model_local.ipynb
+- **API running at**: `http://127.0.0.1:8000`
+- **Interactive Docs (Swagger UI)**: `http://127.0.0.1:8000/docs`
+
+### 3. Run Jupyter for Research
+
+Launch a Jupyter Notebook server to start experimenting.
+
+```bash
+poetry run jupyter notebook
+```
+
+### 4. Code Quality Checks
+
+Format and lint your code before committing.
+
+```bash
+# Format code with Black
+make format
+
+# Check for issues with Ruff
+make lint
 ```
 
 ---
@@ -534,62 +552,24 @@ Parse Indonesian expense text
 
 ---
 
-## 🛠️ Development
+## 🛠️ Development Workflow
 
-### Local Setup
+Our workflow is standardized using `Makefile` and `Poetry`.
 
-```bash
-# 1. Clone repository
-git clone https://github.com/YOUR_USERNAME/smart-expense-nlp.git
-cd smart-expense-nlp
+### Common Commands
 
-# 2. Setup environment
-# Windows:
-setup-local.bat
+- **`make setup`**: Install/update all dependencies. Run this after a `git pull` if `pyproject.toml` has changed.
+- **`make run-api`**: Start the local FastAPI server with auto-reload.
+- **`make test`**: Run the entire test suite using `pytest`.
+- **`make format`**: Auto-format all code in the project with `black`.
+- **`make lint`**: Check for code quality issues and potential bugs with `ruff`.
 
-# Linux/Mac:
-chmod +x setup-local.sh
-./setup-local.sh
+### Working with Poetry
 
-# 3. Activate virtual environment
-# Windows:
-venv\Scripts\activate
-
-# Linux/Mac:
-source venv/bin/activate
-
-# 4. Verify installation
-python -c "import fastapi, torch, transformers; print('✅ All OK!')"
-```
-
-### Running Tests
-
-```bash
-# Unit tests
-pytest tests/ -v
-
-# With coverage
-pytest tests/ --cov=src --cov-report=html
-
-# Specific test file
-pytest tests/test_api.py -v
-```
-
-### Code Quality
-
-```bash
-# Format code
-black src/ tests/
-
-# Sort imports
-isort src/ tests/
-
-# Lint
-flake8 src/ tests/ --max-line-length=100
-
-# Type checking
-mypy src/
-```
+- **Activate the virtual environment**: `poetry shell`
+- **Run a single command**: `poetry run <command>` (e.g., `poetry run python scripts/train.py`)
+- **Add a new dependency**: `poetry add <package-name>`
+- **Add a new dev dependency**: `poetry add <package-name> --group dev`
 
 ---
 

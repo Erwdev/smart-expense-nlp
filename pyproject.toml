@@ -1,0 +1,58 @@
+[tool.poetry]
+name = "smart-expense-nlp"
+version = "0.1.0"
+description = "NLP parser for smart expense tracking"
+authors = ["MLOps Senior Researcher <researcher@example.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "0.115.0"
+uvicorn = "0.30.6"
+psutil = "6.0.0"
+python-multipart = "0.0.9"
+python-dotenv = "1.0.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "8.3.3"
+httpx = "0.27.2"
+pandas = "2.2.2"
+numpy = "1.26.4"
+matplotlib = "3.9.1"
+seaborn = "0.13.2"
+black = "24.4.2"
+rich = "13.7.1"
+ruff = "^0.5.5"
+
+[tool.poetry.group.training.dependencies]
+torch = ">=2.0.0"
+transformers = "4.44.2"
+tokenizers = "0.19.1"
+datasets = "2.20.0"
+accelerate = "0.33.0"
+evaluate = "0.4.2"
+seqeval = "1.2.2"
+pandas = "2.2.2"
+numpy = "1.26.4"
+scikit-learn = "1.5.1"
+wandb = "0.17.5"
+tensorboard = "2.17.0"
+matplotlib = "3.9.1"
+seaborn = "0.13.2"
+tqdm = "4.66.4"
+nltk = "3.8.1"
+PyYAML = "6.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "W", "I", "UP"]
+target-version = "py39"

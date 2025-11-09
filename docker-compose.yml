@@ -9,15 +9,20 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      # Mount source code untuk hot-reload
+      # Mount source code for hot-reload
       - ./src:/app/src
       - ./data:/app/data
       - ./models_exported:/app/models_exported
       - ./configs:/app/configs
+      # Mount pyproject.toml for Poetry config
+      - ./pyproject.toml:/app/pyproject.toml
+      - ./poetry.lock:/app/poetry.lock
     environment:
       - PYTHONUNBUFFERED=1
       - ENV=development
-    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+      - POETRY_VIRTUALENVS_CREATE=false
+    # Use Poetry to run uvicorn
+    command: poetry run uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -25,3 +30,4 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
