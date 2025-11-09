@@ -55,15 +55,111 @@ poetry run jupyter notebook
 
 ---
 
-## ✅ You're All Set!
+## 🔧 Troubleshooting
 
-With these three steps, your environment is ready for both API development and NLP research.
+### Problem: "Module not found" in Colab
 
-### Common Commands Summary
+**Solution:**
+```python
+# Reinstall dependencies
+!pip install --upgrade -r requirements-training.txt
 
-- `make setup`: Install or update dependencies.
-- `make run-api`: Run the local web server.
-- `make test`: Run automated tests.
-- `make format`: Format your code.
-- `make lint`: Check your code for errors.
-- `poetry run jupyter notebook`: Start Jupyter for research.
+# Restart runtime
+# Runtime → Restart runtime
+```
+
+### Problem: Port 8000 already in use
+
+**Solution:**
+```bash
+# Windows: Kill process
+netstat -ano | findstr :8000
+taskkill /PID <PID> /F
+
+# Linux/Mac: Kill process
+lsof -ti:8000 | xargs kill -9
+
+# Or change port in docker-compose.yml
+ports:
+  - "8001:8000"
+```
+
+### Problem: Docker build failed
+
+**Solution:**
+```bash
+# Clear cache
+docker system prune -a
+docker volume prune
+
+# Rebuild
+docker-compose build --no-cache
+```
+
+### Problem: Model file too large for Git
+
+**Solution:**
+```bash
+# Use Git LFS
+git lfs install
+git lfs track "models_exported/**/*.bin"
+git add .gitattributes
+git commit -m "chore: track model files with LFS"
+```
+
+---
+
+## 📊 Critical Checkpoints
+
+### ✅ Research Phase
+- [ ] Dataset labeled (2000+ samples)
+- [ ] BIO tagging consistent
+- [ ] Train/val/test split done (70/15/15)
+- [ ] Model F1-score ≥0.85
+- [ ] Inference time <200ms
+- [ ] Model exported successfully
+
+### ✅ Development Phase
+- [ ] FastAPI endpoint works
+- [ ] Health check passes
+- [ ] Parse endpoint returns correct JSON
+- [ ] Docker container runs
+- [ ] Unit tests pass
+- [ ] No import errors
+
+### ✅ Production Phase
+- [ ] Docker build successful
+- [ ] GitHub push complete
+- [ ] Railway deployment green
+- [ ] Public URL accessible
+- [ ] HTTPS works
+- [ ] API docs available
+
+---
+
+## 📚 Additional Resources
+
+- **Full README:** [README.md](README.md)
+- **Training Guide:** [docs/TRAINING_GUIDE.md](docs/TRAINING_GUIDE.md)
+- **Deployment Guide:** [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)
+- **API Documentation:** http://localhost:8000/docs
+
+---
+
+## 🆘 Need Help?
+
+1. **Check logs:**
+   ```bash
+   # Docker logs
+   docker-compose logs -f
+   
+   # Railway logs
+   # Dashboard → Deployments → Logs
+   ```
+
+2. **GitHub Issues:**
+   https://github.com/YOUR_USERNAME/smart-expense-nlp/issues
+
+
+**Last Updated:** 2024-11-09  
+**Version:** 1.0.0

@@ -18,16 +18,16 @@ API untuk parsing expense text informal Indonesia menggunakan kombinasi **IndoBE
 
 ## 📋 Table of Contents
 
-- [Background](#background)
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [Research Workflow](#research-workflow)
-- [Production Workflow](#production-workflow)
-- [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)
-- [Development](#development)
-- [Deployment](#deployment)
-- [Team](#team)
+- [Background](#-background)
+- [Features](#-features)
+- [Quick Start](#-quick-start)
+- [Research Workflow](#-research-workflow)
+- [Production Workflow](#-production-workflow)
+- [Project Structure](#-project-structure)
+- [API Documentation](#-api-documentation)
+- [Development](#-development)
+- [Deployment](#-deployment)
+- [Team](#-team)
 
 ---
 
