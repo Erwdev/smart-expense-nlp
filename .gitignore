@@ -216,3 +216,22 @@ profile_*.json
 models_exported/indobert-expense-ner-model/models_exported/indobert-expense-ner-silver-final/*.bin
 models_exported/indobert-expense-ner-model/models_exported/indobert-expense-ner-silver-final/*.safetensors
 models_exported/indobert-expense-ner-model/models_exported/indobert-expense-ner-silver-final/pytorch_model.bin
+
+# ============================================
+# 🔥 MODEL FILES - JANGAN PUSH KE GITHUB
+# ============================================
+# Ignore entire model directory (best practice)
+src/models/indobert-expense-ner-model/
+
+# Ignore downloaded zip
+src/models/model.zip
+src/models/temp_extract/
+
+# Alternative: ignore specific files only
+# src/models/**/config.json
+# src/models/**/model.safetensors
+# src/models/**/pytorch_model.bin
+# src/models/**/*.bin
+# src/models/**/tokenizer*.json
+# src/models/**/vocab.txt
+# src/models/**/special_tokens_map.json

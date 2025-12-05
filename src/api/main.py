@@ -7,6 +7,9 @@ import psutil
 from contextlib import asynccontextmanager
 from src.api.routes import parse
 import uvicorn
+from dotenv import load_dotenv
+import os 
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -41,6 +44,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# @app.on_event("startup")
+# async def startup_event():
+#     print("[STARTUP] Initializing NLP model...")
+#     parse.load_ner_model()
+#     print("[STARTUP] Application ready")
 
 # Include routes
 app.include_router(parse.router, prefix="/api", tags=["NER"])

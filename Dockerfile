@@ -27,7 +27,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
     psutil==5.9.6 \
     python-dotenv==1.0.0 \
     gdown==4.7.1 \
-    requests==2.31.0
+    python-dotenv==1.0.0 \
+    requests==2.31.0\
+    gdown==5.1.0
 
 # Copy application code
 COPY . .

@@ -4,20 +4,30 @@ from typing import List, Optional
 from transformers import pipeline, AutoTokenizer, AutoModelForTokenClassification
 import os
 import warnings
+import torch
+from dotenv import load_dotenv  # ✅ Import dotenv
+from src.utils.model_loader import ModelLoader
 
-# ✅ FIX 1: Suppress truncation warnings (biar log bersih)
+# ✅ CRITICAL: Load .env FIRST before reading env vars
+load_dotenv()
+
+# ✅ FIX 1: Suppress truncation warnings
 warnings.filterwarnings("ignore", message=".*truncate.*")
 warnings.filterwarnings("ignore", message=".*max_length.*")
 
 router = APIRouter()
+
+# ✅ NOW this will work because .env is loaded
+GDRIVE_FILE_ID = os.getenv("GDRIVE_MODEL_ID")
+print(f"[PARSE.PY] GDRIVE_MODEL_ID loaded: {GDRIVE_FILE_ID}")  # ✅ Debug print
 
 # ============================================
 # Model Path Configuration
 # ============================================
 MODEL_PATH = os.path.join(
     os.path.dirname(__file__),
-    "..", "..", "..",
-    "models_exported",
+    "..", "..",
+    "models",
     "indobert-expense-ner-model",
     "models_exported",
     "indobert-expense-ner-silver-final"
@@ -32,47 +42,77 @@ model = None
 def load_ner_model():
     """Load NER model with EXACT same preprocessing as training"""
     global ner_pipeline, tokenizer, model
-    
-    print(f"[STARTUP] Looking for model at: {MODEL_PATH}")
-    
+
+    print(f"[STARTUP] Target model path: {MODEL_PATH}")
+
     try:
-        if not os.path.exists(MODEL_PATH):
-            raise FileNotFoundError(f"Model not found at {MODEL_PATH}")
-        
-        print("[STARTUP] Loading tokenizer and model...")
-        
-        # ✅ FIX 2: Load tokenizer with explicit config
+        # ✅ STEP 1: Download model from Google Drive if not exists
+        if GDRIVE_FILE_ID:
+            print(f"[STARTUP] Google Drive File ID detected: {GDRIVE_FILE_ID}")
+
+            loader = ModelLoader(
+                gdrive_file_id=GDRIVE_FILE_ID,
+                model_dir=MODEL_PATH
+            )
+
+            # ============================
+            #  🔥 FIX: CEK DULU SUDAH ADA MODEL?
+            # ============================
+            if loader.model_exists():
+                print("[STARTUP] ✓ Model already exists. Skipping download.")
+            else:
+                print("[STARTUP] Model not found, downloading...")
+                if not loader.load():
+                    # kalau load gagal dan folder juga tidak ada -> error
+                    if not loader.model_exists():
+                        raise RuntimeError("Failed to load model from Google Drive")
+                    else:
+                        print("[STARTUP] ⚠ Download failed but model exists, continuing...")
+
+        # ✅ STEP 2: Load tokenizer
+        print("[STARTUP] Loading tokenizer...")
         tokenizer = AutoTokenizer.from_pretrained(
             MODEL_PATH,
             use_fast=True,
-            model_max_length=512,  # ✅ Set max length in tokenizer
+            model_max_length=512,
         )
-        
-        # Load model
+
+        # ✅ STEP 3: Load model
+        print("[STARTUP] Loading model...")
         model = AutoModelForTokenClassification.from_pretrained(MODEL_PATH)
-        
-        # ✅ FIX 3: Create pipeline with ONLY valid parameters
+
+        # ✅ STEP 4: GPU detection
+        device = -1
+        if torch.cuda.is_available():
+            device = 0
+            print(f"[STARTUP] ✓ CUDA available: {torch.cuda.get_device_name(0)}")
+            print(f"[STARTUP] ✓ CUDA version: {torch.version.cuda}")
+        else:
+            print("[STARTUP] ⚠ CUDA not available, using CPU")
+
+        # ✅ STEP 5: Create pipeline
         ner_pipeline = pipeline(
             "token-classification",
             model=model,
             tokenizer=tokenizer,
-            aggregation_strategy="simple",  # Merge B-/I- subwords
-            device=0 if os.environ.get("CUDA_VISIBLE_DEVICES") else -1,  # GPU if available
+            aggregation_strategy="simple",
+            device=device,
         )
-        
+
         print(f"[STARTUP] ✓ Model loaded successfully")
-        print(f"[STARTUP] ✓ Device: {'GPU' if ner_pipeline.device.type == 'cuda' else 'CPU'}")
+        print(f"[STARTUP] ✓ Device: {'GPU (cuda:0)' if device == 0 else 'CPU'}")
         print(f"[STARTUP] ✓ Max length: {tokenizer.model_max_length}")
+
         return ner_pipeline
-        
+
     except Exception as e:
         print(f"[STARTUP] ✗ Failed to load model: {e}")
         import traceback
         traceback.print_exc()
         ner_pipeline = None
         return None
-
-# Request/Response Models
+    
+    
 class ParseRequest(BaseModel):
     text: str
     
@@ -113,18 +153,9 @@ class BatchParseResponse(BaseModel):
     results: List[ParseResponse]
     total_processed: int
 
-# ============================================
-# Helper Function: Preprocess Text
-# ============================================
 def preprocess_text(text: str) -> str:
-    """
-    Preprocess input text (same as training)
-    - Strip whitespace
-    - Optionally normalize case (commented out by default)
-    """
-    # ✅ FIX 4: Match training preprocessing
+    """Preprocess input text (same as training)"""
     normalized = text.strip()
-    # Optional: normalized = normalized.lower()  # Uncomment if training used lowercase
     return normalized
 
 # ============================================
@@ -132,16 +163,7 @@ def preprocess_text(text: str) -> str:
 # ============================================
 @router.post("/parse", response_model=ParseResponse)
 async def parse_text(request: ParseRequest):
-    """
-    Parse single expense text and extract entities
-    
-    Preprocessing pipeline:
-    1. Strip whitespace
-    2. Tokenize with IndoBERT tokenizer (auto truncation at 512)
-    3. Model inference (token classification)
-    4. Aggregate subwords (B-/I- → single entity)
-    5. Filter by confidence threshold
-    """
+    """Parse single expense text and extract entities"""
     if ner_pipeline is None:
         raise HTTPException(
             status_code=503, 
@@ -149,7 +171,6 @@ async def parse_text(request: ParseRequest):
         )
     
     try:
-        # ✅ FIX 5: Input validation
         if not request.text or not request.text.strip():
             return ParseResponse(
                 text=request.text,
@@ -157,21 +178,13 @@ async def parse_text(request: ParseRequest):
                 entity_count=0
             )
         
-        # Preprocess
         normalized_text = preprocess_text(request.text)
         
-        # 🚀 INFERENCE
-        # Pipeline will automatically:
-        # - Tokenize with tokenizer.model_max_length=512
-        # - Truncate if needed
-        # - Run inference
-        # - Aggregate with strategy="simple"
         print(f"[INFERENCE] Processing: {normalized_text}")
         entities = ner_pipeline(normalized_text)
         print(f"[INFERENCE] Found {len(entities)} entities: {entities}")
         
-        # ✅ FIX 6: Post-processing filter (remove low confidence)
-        MIN_CONFIDENCE = 0.5  # Adjust threshold as needed
+        MIN_CONFIDENCE = 0.5
         filtered_entities = [
             Entity(
                 entity_group=ent["entity_group"],
@@ -181,7 +194,7 @@ async def parse_text(request: ParseRequest):
                 end=ent["end"]
             )
             for ent in entities
-            if ent["score"] >= MIN_CONFIDENCE  # ✅ Filter low confidence
+            if ent["score"] >= MIN_CONFIDENCE
         ]
         
         return ParseResponse(
@@ -199,9 +212,7 @@ async def parse_text(request: ParseRequest):
 
 @router.post("/batch-parse", response_model=BatchParseResponse)
 async def batch_parse(request: BatchParseRequest):
-    """
-    Parse multiple texts efficiently with batch processing
-    """
+    """Parse multiple texts efficiently with batch processing"""
     if ner_pipeline is None:
         raise HTTPException(
             status_code=503, 
@@ -209,10 +220,8 @@ async def batch_parse(request: BatchParseRequest):
         )
     
     try:
-        # ✅ FIX 7: Batch processing optimization
         print(f"[BATCH INFERENCE] Processing {len(request.texts)} texts")
         
-        # Normalize inputs
         normalized_texts = [
             preprocess_text(text) 
             for text in request.texts 
@@ -222,10 +231,8 @@ async def batch_parse(request: BatchParseRequest):
         if not normalized_texts:
             return BatchParseResponse(results=[], total_processed=0)
         
-        # ✅ Batch inference (pipeline handles batching efficiently)
         batch_entities = ner_pipeline(normalized_texts)
         
-        # Format results
         results = []
         MIN_CONFIDENCE = 0.5
         
@@ -271,9 +278,9 @@ async def health_check():
         "model_loaded": ner_pipeline is not None,
         "model_path": MODEL_PATH,
         "model_exists": os.path.exists(MODEL_PATH),
+        "gdrive_id_set": GDRIVE_FILE_ID is not None,  # ✅ Add debug info
     }
     
-    # ✅ FIX 8: Add preprocessing config info
     if ner_pipeline is not None and tokenizer is not None:
         model_info.update({
             "device": str(ner_pipeline.device),
