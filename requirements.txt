@@ -1,9 +1,9 @@
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 transformers==4.35.2
-torch==2.1.1+cpu
-torchvision==0.16.1+cpu
 --extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.5.1+cpu
+torchvision==0.20.1+cpu
 python-dotenv==1.0.0
 gdown==4.7.1
 pydantic==2.5.0
