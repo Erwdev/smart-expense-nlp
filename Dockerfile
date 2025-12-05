@@ -1,44 +1,46 @@
 FROM python:3.10-slim
 
+# Set working directory
 WORKDIR /app
 
-# Install system dependencies required for building packages and running the app
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
     git \
+    wget \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
-# Using the official installer script
-RUN curl -sSL https://install.python-poetry.org | python3 - \
-    && mv /root/.local/bin/poetry /usr/local/bin/poetry
+# Copy requirements first (untuk caching)
+COPY pyproject.toml ./
 
-# Verify Poetry installation
-RUN poetry --version
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+    fastapi==0.104.1 \
+    uvicorn[standard]==0.24.0 \
+    transformers==4.35.0 \
+    torch==2.1.0 --index-url https://download.pytorch.org/whl/cpu \
+    pydantic==2.5.0 \
+    python-multipart==0.0.6 \
+    psutil==5.9.6 \
+    python-dotenv==1.0.0 \
+    gdown==4.7.1 \
+    requests==2.31.0
 
-# Copy the pyproject.toml and poetry.lock files to the working directory
-# This allows Docker to cache the dependency installation layer
-COPY pyproject.toml poetry.lock* ./
-
-# Configure Poetry to not create a virtual environment inside the container
-# This is common practice for Docker images to keep dependencies in the container's site-packages
-RUN poetry config virtualenvs.create false
-
-# Install all project dependencies
-# This command installs dependencies defined in pyproject.toml
-RUN poetry install --no-interaction --no-ansi --no-root
-
-# Copy the rest of the application code
+# Copy application code
 COPY . .
 
-# Expose the port the app runs on
+# Create directories for model
+RUN mkdir -p models_exported/indobert-expense-ner-model/models_exported
+
+# Expose port
 EXPOSE 8000
 
-# Health check to ensure the application is running
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+# Health check (tunggu 2 menit untuk download model)
+HEALTHCHECK --interval=30s --timeout=30s --start-period=120s --retries=5 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Define the command to run the application
-# Use uvicorn to run the FastAPI app
-CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run application
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

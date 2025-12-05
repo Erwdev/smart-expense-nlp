@@ -207,3 +207,12 @@ marimo/_lsp/
 __marimo__/
 
 .models/exported
+
+test_results_*.json
+stress_test_results_*.json
+profile_*.json
+
+
+models_exported/indobert-expense-ner-model/models_exported/indobert-expense-ner-silver-final/*.bin
+models_exported/indobert-expense-ner-model/models_exported/indobert-expense-ner-silver-final/*.safetensors
+models_exported/indobert-expense-ner-model/models_exported/indobert-expense-ner-silver-final/pytorch_model.bin
